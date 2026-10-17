@@ -30,7 +30,6 @@ class FakeStreamlit:
         self.session = Session()
         self.callbacks: dict = {}
         self.button_keys: list = []
-        self.button_labels: dict = {}
         self.markdown_calls: list = []
         self.st = self._build()
 
@@ -41,7 +40,6 @@ class FakeStreamlit:
 
         def button(label, key=None, on_click=None, args=None, kwargs=None, **kw):
             self.button_keys.append(key)
-            self.button_labels[key] = label
             if on_click is not None:
                 self.callbacks[key] = (on_click, args or (), kwargs or {})
             return False
@@ -69,7 +67,6 @@ class FakeStreamlit:
         """Execute streamlit_app.py once, like one Streamlit script run."""
         self.callbacks.clear()
         self.button_keys.clear()
-        self.button_labels.clear()
         self.markdown_calls.clear()
         self.st.reset_mock(return_value=False, side_effect=False)
         for name in [m for m in list(sys.modules)

@@ -34,10 +34,7 @@ class LandingFlowTests(unittest.TestCase):
         st = self.fake.st
         self.assertFalse(st.popover.called, "temporary menu must not render on landing")
         self.assertNotIn("cyberguide_fab", self.fake.container_keys())
-        self.assertFalse([k for k in self.fake.button_keys
-                          if k and k.startswith(("menu_", "nav_", "guide_", "cybershield_", "cs_nav"))])
-        self.assertFalse([k for k in self.fake.container_keys() if k and k.startswith("cybershield_nav")],
-                         "shield toggle/drawer must not render on landing")
+        self.assertFalse([k for k in self.fake.button_keys if k and k.startswith(("menu_", "nav_", "guide_"))])
         self.assertFalse(self.fake.sidebar_calls())
 
     def test_landing_does_not_show_dashboard_content(self):
@@ -62,21 +59,20 @@ class LandingFlowTests(unittest.TestCase):
             self.assertIn("Service status", subheaders, key)
 
     # --- State B: application ---------------------------------------------------
-    def test_app_state_has_shield_toggle_and_chat_and_no_sidebar(self):
+    def test_app_state_has_menu_and_chat_and_no_sidebar(self):
         self.enter()
         st = self.fake.st
-        self.assertFalse(st.popover.called, "old temporary menu must be gone")
-        self.assertIn("cybershield_navtoggle_btn", self.fake.button_keys)
+        st.popover.assert_called_once_with("☰ Menu")
         self.assertIn("cyberguide_fab", self.fake.container_keys())
         self.assertIn("guide_toggle", self.fake.button_keys)
         self.assertFalse(self.fake.sidebar_calls())
         self.assertNotIn("landing_cta_top", self.fake.button_keys)
 
-    def test_obsolete_menu_controls_are_gone_after_entering(self):
+    def test_menu_offers_all_eight_pages(self):
         self.assertEqual(len(reg.implemented_keys()), 8)
         self.enter()
-        self.assertFalse([k for k in self.fake.button_keys if k and k.startswith("menu_")])
-        self.assertNotIn("☰ Menu", self.fake.all_markdown())
+        menu = {k for k in self.fake.button_keys if k and k.startswith("menu_")}
+        self.assertEqual(menu, {f"menu_{k}" for k in reg.implemented_keys()})
 
     def test_every_page_renders_after_entering(self):
         for key in reg.implemented_keys():
@@ -122,8 +118,8 @@ class LandingFlowTests(unittest.TestCase):
 
     def test_navigation_inside_app_does_not_return_to_landing(self):
         self.enter()
-        self.fake.session["page"] = "settings"        # what a navigation click writes
+        self.fake.session["page"] = "settings"        # what a menu click writes
         self.fake.run_app()
         self.assertEqual(self.fake.session["view"], "app")
-        self.assertIn("cybershield_navtoggle_btn", self.fake.button_keys)
+        self.assertFalse(self.fake.st.popover.call_args is None)
         self.assertNotIn("landing_cta_top", self.fake.button_keys)

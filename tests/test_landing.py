@@ -164,13 +164,13 @@ class WiringTests(unittest.TestCase):
         self.assertIn("render_landing", self._calls(branch))
         self.assertTrue(any(isinstance(s, ast.Return) for s in branch.body))
         landing_calls = self._calls(branch)
-        for shell in ("render_shield_nav", "render_sidebar", "render_cyberguide"):
+        for shell in ("render_top_menu", "render_sidebar", "render_cyberguide"):
             self.assertNotIn(shell, landing_calls)
         index = body.index(branch)
         later = set()
         for stmt in body[index + 1:]:
             later |= self._calls(stmt)
-        self.assertIn("render_shield_nav", later)
+        self.assertIn("render_top_menu", later)
         self.assertIn("render_cyberguide", later)
 
     def test_no_pages_directory_and_views_kept(self):
