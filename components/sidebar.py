@@ -21,21 +21,28 @@ def current_page() -> str:
     return page if page in reg.implemented_keys() else reg.DEFAULT_PAGE
 
 
+def _nav_buttons(page: str, key_prefix: str) -> None:
+    """Grouped navigation buttons from the registry, used by the legacy
+    Streamlit sidebar (SHOW_DEFAULT_SIDEBAR = True). The custom shield drawer
+    lives in components/shield_nav.py."""
+    groups: dict[str, list[reg.Module]] = {}
+    for module in reg.implemented():
+        groups.setdefault(module.group, []).append(module)
+    for group, modules in groups.items():
+        st.caption(group)
+        for m in modules:
+            if st.button(f"{m.icon}  {m.title}", key=f"{key_prefix}_{m.key}",
+                         **BUTTON_STRETCH,
+                         type="primary" if m.key == page else "secondary"):
+                st.session_state["page"] = m.key
+                st.rerun()
+
+
 def render_sidebar() -> str:
     page = current_page()
     with st.sidebar:
         st.markdown(f"### 🛡️ {APP_NAME}")
-        groups: dict[str, list[reg.Module]] = {}
-        for module in reg.implemented():
-            groups.setdefault(module.group, []).append(module)
-        for group, modules in groups.items():
-            st.caption(group)
-            for m in modules:
-                if st.button(f"{m.icon}  {m.title}", key=f"nav_{m.key}",
-                             **BUTTON_STRETCH,
-                             type="primary" if m.key == page else "secondary"):
-                    st.session_state["page"] = m.key
-                    st.rerun()
+        _nav_buttons(page, key_prefix="nav")
         upcoming = reg.planned()
         if upcoming:
             st.caption("Planned (not available yet)")
