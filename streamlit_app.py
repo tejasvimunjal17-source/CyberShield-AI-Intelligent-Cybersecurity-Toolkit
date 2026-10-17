@@ -9,17 +9,20 @@ import streamlit as st
 
 import app_registry as reg
 from backend.logging_config import get_logger
+from components.app_state import VIEW_LANDING, get_view
 from components.cyberguide_chat import render_cyberguide
-from components.sidebar import render_sidebar
+from components.landing import render_landing
+from components.shield_nav import render_shield_nav
+from components.sidebar import current_page, render_sidebar
 from components.theme import inject_css
-from config import APP_NAME, get_app_env
+from config import APP_NAME, SHOW_DEFAULT_SIDEBAR, get_app_env
 from views import (about, dashboard, file_analyzer, learning_center,
                    qr_analyzer, qr_generator, settings, url_scanner)
 
 logger = get_logger(__name__)
 
 st.set_page_config(page_title=f"{APP_NAME}", page_icon="🛡️", layout="wide",
-                   initial_sidebar_state="expanded")
+                   initial_sidebar_state="expanded" if SHOW_DEFAULT_SIDEBAR else "collapsed")
 
 PAGES = {
     "dashboard": dashboard.render,
@@ -37,7 +40,16 @@ assert set(PAGES) == set(reg.implemented_keys()), "app_registry and PAGES are ou
 
 def main() -> None:
     inject_css()
-    page = render_sidebar()
+    if get_view(st.session_state) == VIEW_LANDING:
+        # Landing state: no shield navigation, no sidebar, no CyberGuide widget.
+        render_landing()
+        return
+    if SHOW_DEFAULT_SIDEBAR:
+        page = render_sidebar()
+    else:
+        # Nothing is written to st.sidebar, so Streamlit renders no sidebar.
+        page = current_page()
+        render_shield_nav(page)
     try:
         PAGES[page]()
     except Exception as exc:  # noqa: BLE001 - last-resort safety net
