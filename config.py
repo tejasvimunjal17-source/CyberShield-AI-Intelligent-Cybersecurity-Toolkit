@@ -22,6 +22,11 @@ APP_NAME = "CyberShield AI"
 APP_TAGLINE = "Intelligent Security. Clear Insights. Safer Digital Experiences."
 GUIDE_NAME = "CyberGuide AI"
 
+# UI chrome. False = Streamlit's own sidebar is not rendered and the custom
+# shield-button navigation drawer (components/shield_nav.py) is used instead.
+# Set True to restore the original Streamlit sidebar exactly as it was.
+SHOW_DEFAULT_SIDEBAR = False
+
 # Keep in sync with [server] maxUploadSize in .streamlit/config.toml.
 MAX_UPLOAD_MB = 25
 MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024
