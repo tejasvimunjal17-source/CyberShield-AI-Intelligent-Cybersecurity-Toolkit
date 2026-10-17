@@ -70,6 +70,20 @@ class RetrievalTests(unittest.TestCase):
         self.assertIn("How to interpret a VirusTotal report", self.top("How do I interpret a VirusTotal report?"))
         self.assertIn("How to configure OpenRouter for CyberGuide AI", self.top("How do I configure the OpenRouter API key?"))
 
+    def test_sidebar_and_navigation_questions(self):
+        for q in ("How do I open the sidebar?", "How do I close the sidebar?",
+                  "What does the shield button do?", "How do I navigate to the settings page?"):
+            self.assertIn("Navigation sidebar and shield button", self.top(q), q)
+
+    def test_navigation_docs_name_all_eight_pages_and_the_toggle(self):
+        section = next(s for s in load_sections() if s.title == "Navigation sidebar and shield button")
+        for m in reg.implemented():
+            self.assertIn(m.title, section.body, m.title)
+        for needle in ("shield", "Open navigation", "Close navigation", "top-left", "never changes the page"):
+            self.assertIn(needle, section.body, needle)
+        for m in reg.planned():
+            self.assertNotIn(m.title, section.body.replace("Phishing Awareness Lab are not listed", ""), m.title)
+
     def test_no_match_returns_empty(self):
         self.assertEqual(retrieve("zzzz qqqq"), [])
         self.assertEqual(retrieve(""), [])
