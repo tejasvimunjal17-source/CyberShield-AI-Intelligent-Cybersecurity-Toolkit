@@ -43,4 +43,4 @@ def render() -> None:
         for m in reg.planned():
             st.markdown(f"- **{m.title}**: {m.summary}")
 
-    st.info("Not sure where to start? Use the 💬 CyberGuide AI button in the corner.")
+    st.info("Use the 🛡️ shield button (top-left) to open navigation, or the 💬 CyberGuide AI button (bottom-right) if you are not sure where to start.")
