@@ -164,13 +164,13 @@ class WiringTests(unittest.TestCase):
         self.assertIn("render_landing", self._calls(branch))
         self.assertTrue(any(isinstance(s, ast.Return) for s in branch.body))
         landing_calls = self._calls(branch)
-        for shell in ("render_top_menu", "render_sidebar", "render_cyberguide"):
+        for shell in ("render_shield_nav", "render_sidebar", "render_cyberguide"):
             self.assertNotIn(shell, landing_calls)
         index = body.index(branch)
         later = set()
         for stmt in body[index + 1:]:
             later |= self._calls(stmt)
-        self.assertIn("render_top_menu", later)
+        self.assertIn("render_shield_nav", later)
         self.assertIn("render_cyberguide", later)
 
     def test_no_pages_directory_and_views_kept(self):
@@ -185,6 +185,51 @@ class WiringTests(unittest.TestCase):
             self.assertNotIn(forbidden, used, f"landing.py uses st.{forbidden}")
         strings = [n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and isinstance(n.value, str)]
         self.assertFalse([t for t in strings if "<script" in t.lower() or "javascript:" in t.lower()])
+
+
+class TopBarTests(unittest.TestCase):
+    """Part 4: the top bar holds only the brand and in-page links."""
+
+    def setUp(self):
+        self.tree = ast.parse(_read("components/landing.py"))
+
+    def func(self, name):
+        return next(n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
+
+    def test_topbar_has_no_buttons_columns_or_get_started(self):
+        called = {getattr(c.func, "attr", getattr(c.func, "id", "")) for c in ast.walk(self.func("_topbar"))
+                  if isinstance(c, ast.Call)}
+        for forbidden in ("button", "columns", "_get_started"):
+            self.assertNotIn(forbidden, called, f"_topbar() still calls {forbidden}")
+
+    def test_only_hero_and_final_get_started_remain(self):
+        keys = sorted(c.args[0].value for c in ast.walk(self.tree)
+                      if isinstance(c, ast.Call) and getattr(c.func, "id", "") == "_get_started")
+        self.assertEqual(keys, ["landing_cta_final", "landing_cta_hero"])
+
+    def test_no_reference_to_the_removed_button_anywhere_in_source(self):
+        for path in ("components/landing.py", "components/landing_css.py", "streamlit_app.py"):
+            self.assertNotIn("landing_cta_top", _read(path), path)
+
+
+class ConfigTomlTests(unittest.TestCase):
+    def setUp(self):
+        try:
+            import tomllib
+        except ImportError:  # Python < 3.11
+            self.skipTest("tomllib not available")
+        with open(".streamlit/config.toml", "rb") as fh:
+            self.cfg = tomllib.load(fh)
+
+    def test_toolbar_and_top_bar_settings(self):
+        self.assertEqual(self.cfg["client"]["toolbarMode"], "minimal")
+        self.assertIs(self.cfg["ui"]["hideTopBar"], True)
+
+    def test_existing_settings_preserved(self):
+        self.assertIs(self.cfg["client"]["showSidebarNavigation"], False)
+        self.assertEqual(self.cfg["theme"]["primaryColor"], "#22D3EE")
+        self.assertEqual(self.cfg["server"]["maxUploadSize"], 25)
+        self.assertIs(self.cfg["browser"]["gatherUsageStats"], False)
 
 
 if __name__ == "__main__":
