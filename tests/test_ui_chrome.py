@@ -3,7 +3,7 @@ import unittest
 
 import app_registry as reg
 import config
-from components.chrome import SIDEBAR_SELECTORS, TOOLBAR_SELECTORS, chrome_css
+from components.chrome import HEADER_SELECTORS, SIDEBAR_SELECTORS, TOOLBAR_SELECTORS, chrome_css
 
 
 def _read(path):
@@ -23,10 +23,30 @@ class ChromeCssTests(unittest.TestCase):
             self.assertIn(sel, chrome_css(True))
             self.assertNotIn(sel, chrome_css(False))
 
-    def test_does_not_hide_header_menu_or_status(self):
+    def test_header_hidden_only_when_custom_navigation_is_in_use(self):
+        # Part 4: the shield navigation does not depend on Streamlit's header, so it is
+        # hidden with the custom navigation. The legacy sidebar's collapse control lives
+        # in the header, so in legacy mode only the toolbar is hidden.
+        for sel in HEADER_SELECTORS:
+            self.assertIn(sel, chrome_css(True))
+            self.assertNotIn(sel, chrome_css(False))
+
+    def test_toolbar_selectors_cover_share_github_edit_menu_and_deploy(self):
+        joined = " ".join(TOOLBAR_SELECTORS)
+        for needle in ("stToolbar", "stToolbarActions", "stAppDeployButton", "stMainMenu"):
+            self.assertIn(needle, joined)
+
+    def test_never_targets_app_content_or_platform_controls(self):
         css = chrome_css(True)
-        for forbidden in ("stHeader", "stMainMenu", "stStatusWidget", "stDecoration", "stMain", "stApp\"", "visibility: hidden"):
-            self.assertNotIn(forbidden, css)
+        for forbidden in ("stMain\"", "stApp\"", "stAppViewContainer", "block-container", "stMarkdown",
+                          "stButton", "stVerticalBlock", "visibility: hidden",
+                          "viewerBadge", "manage", "Manage", "st-key-"):
+            self.assertNotIn(forbidden, css, forbidden)
+
+    def test_hides_with_display_none_only(self):
+        for line in chrome_css(True).splitlines():
+            if "{" in line:
+                self.assertIn("display: none !important", line)
 
     def test_valid_style_block(self):
         css = chrome_css(True)
