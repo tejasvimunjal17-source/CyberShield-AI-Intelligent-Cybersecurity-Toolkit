@@ -24,7 +24,7 @@ _CSS = """
   padding: 10px 16px; border: 1px solid #24405F; border-radius: 16px;
   background: rgba(18,35,61,.72);
 }
-.cs-l-bar { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.cs-l-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px 22px; flex-wrap: wrap; }
 .cs-l-brand { display: flex; align-items: center; gap: 10px; font-weight: 800;
   font-size: 1.15rem; letter-spacing: -.01em; color: #E6EEF8; }
 .cs-l-logo { display: inline-flex; width: 36px; height: 36px; align-items: center;
@@ -125,6 +125,7 @@ _CSS = """
 
 @media (max-width: 640px) {
   .block-container { padding-left: .8rem; padding-right: .8rem; }
+  .cs-l-nav a { padding: 6px 8px; }
   .cs-l-kicker { margin-top: 40px; }
   [class*="st-key-landing_card_"] { min-height: 0; }
   .cs-l-shield { width: min(210px, 70%); }
