@@ -21,7 +21,7 @@ class ShieldNavFlowTests(unittest.TestCase):
     def setUp(self):
         self.fake = FakeStreamlit()
         self.fake.run_app()
-        self.fake.press("landing_cta_top")      # Get Started
+        self.fake.press("landing_cta_hero")     # Get Started (hero)
         self.fake.run_app()
 
     def toggle(self):
@@ -39,7 +39,8 @@ class ShieldNavFlowTests(unittest.TestCase):
         self.assertFalse([k for k in fake.container_keys() if k in (TOGGLE_BOX_KEY, DRAWER_KEY, "cyberguide_fab")])
         self.assertFalse(fake.st.popover.called)
         self.assertFalse([k for k in fake.button_keys if k and k.startswith("cs_nav")])
-        self.assertIn("landing_cta_top", fake.button_keys)          # existing CTA intact
+        self.assertIn("landing_cta_hero", fake.button_keys)         # hero CTA intact
+        self.assertNotIn("landing_cta_top", fake.button_keys)
 
     def test_get_started_still_opens_dashboard_with_shield(self):
         self.assertEqual(self.fake.session["view"], "app")
@@ -160,6 +161,46 @@ class ShieldNavFlowTests(unittest.TestCase):
         self.fake.run_app()
         self.assertEqual(self.fake.session["guide_history"], [{"role": "user", "content": "q"}])
         self.assertTrue(self.fake.session["guide_open"])
+
+    # --- Part 5: ripple animation ---------------------------------------------------------
+    def test_ripple_css_only_in_the_app_view_and_on_every_app_page(self):
+        landing = FakeStreamlit()
+        landing.run_app()
+        self.assertNotIn("cs-ripple", landing.all_markdown())
+        self.assertNotIn(TOGGLE_BTN_KEY, landing.button_keys)
+        for key in reg.implemented_keys():
+            fake = FakeStreamlit()
+            fake.run_app()
+            fake.session["view"] = "app"
+            fake.session["page"] = key
+            fake.run_app()
+            md = fake.all_markdown()
+            self.assertEqual(md.count("@keyframes cs-ripple"), 1, key)
+            self.assertIn("prefers-reduced-motion: reduce", md, key)
+            self.assertIn(TOGGLE_BTN_KEY, fake.button_keys, key)
+
+    def test_ripple_does_not_change_session_state_or_routing(self):
+        self.fake.session["page"] = "url_scanner"
+        before = dict(self.fake.session)
+        css_runs = []
+        for _ in range(4):
+            self.fake.run_app()
+            css_runs.append(next(m for m in self.fake.markdown_calls if "@keyframes cs-ripple" in m))
+        self.assertEqual(dict(self.fake.session), before, "rendering the animated shield must not write state")
+        self.assertEqual(len(set(css_runs)), 1, "CSS output is deterministic across reruns")
+        self.assertFalse(self.fake.st.rerun.called)
+
+    def test_shield_still_toggles_and_navigates_with_ripple_present(self):
+        self.toggle()
+        self.assertTrue(self.is_open())
+        self.assertIn("@keyframes cs-ripple", self.fake.all_markdown())
+        self.fake.press(item_key("settings", "dashboard"))
+        self.fake.run_app()
+        self.assertEqual(self.fake.session["page"], "settings")
+        self.assertFalse(self.is_open())
+        self.toggle()
+        self.assertTrue(self.is_open())
+        self.assertEqual(self.fake.button_labels[TOGGLE_BTN_KEY], "🛡️")
 
     # --- rerun stability --------------------------------------------------------------------
     def test_repeated_reruns_are_stable_open_and_closed(self):
