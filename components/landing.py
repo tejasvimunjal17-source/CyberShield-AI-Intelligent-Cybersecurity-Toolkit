@@ -37,18 +37,16 @@ def _heading(kicker: str, title: str, anchor: str = "") -> None:
 
 
 def _topbar() -> None:
+    """Brand + in-page links only. The Get Started buttons live in the hero and
+    the final call to action, so the bar has no button-shaped gap."""
     with st.container(key="landing_topbar"):
-        left, right = st.columns([4, 1.3], vertical_alignment="center")
-        with left:
-            st.markdown(
-                f'<div class="cs-l-bar"><div class="cs-l-brand"><span class="cs-l-logo">🛡️</span>'
-                f'<span>{escape(APP_NAME)}</span></div>'
-                '<nav class="cs-l-nav"><a href="#features" target="_self">Features</a>'
-                '<a href="#about" target="_self">About</a></nav></div>',
-                unsafe_allow_html=True,
-            )
-        with right:
-            _get_started("landing_cta_top")
+        st.markdown(
+            f'<div class="cs-l-bar"><div class="cs-l-brand"><span class="cs-l-logo">🛡️</span>'
+            f'<span>{escape(APP_NAME)}</span></div>'
+            '<nav class="cs-l-nav"><a href="#features" target="_self">Features</a>'
+            '<a href="#about" target="_self">About</a></nav></div>',
+            unsafe_allow_html=True,
+        )
 
 
 def _hero() -> None:
