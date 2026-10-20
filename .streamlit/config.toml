@@ -1,0 +1,27 @@
+[theme]
+base = "dark"
+primaryColor = "#22D3EE"
+backgroundColor = "#0B1628"
+secondaryBackgroundColor = "#12233D"
+textColor = "#E6EEF8"
+
+[server]
+# Upload ceiling enforced by Streamlit itself (MB). Keep in sync with
+# MAX_UPLOAD_MB in config.py.
+maxUploadSize = 25
+
+[client]
+showSidebarNavigation = false
+# "minimal" hides Streamlit's developer options but, by Streamlit's own
+# definition, KEEPS items set externally by Community Cloud (Share, star,
+# edit, GitHub). See components/chrome.py for how those are handled.
+toolbarMode = "minimal"
+
+[ui]
+# Hide Streamlit's top bar. Navigation is the custom shield drawer, which does
+# not depend on it. If you turn the legacy Streamlit sidebar back on
+# (SHOW_DEFAULT_SIDEBAR = True in config.py), remove this line too.
+hideTopBar = true
+
+[browser]
+gatherUsageStats = false
