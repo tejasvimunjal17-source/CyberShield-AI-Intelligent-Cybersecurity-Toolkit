@@ -130,5 +130,86 @@ class ShieldCssTests(unittest.TestCase):
         self.assertIn("#22D3EE", self.css)
 
 
+class ShieldRippleCssTests(unittest.TestCase):
+    """String-level checks of the ripple CSS (no browser). The rendering-engine
+    checks live in test_shield_ripple_browser.py."""
+
+    def setUp(self):
+        self.css = css.shield_nav_css()
+
+    def keyframes(self):
+        return self.css.split("@keyframes cs-ripple {")[1].split("\n}")[0]
+
+    def ripple_rule(self):
+        return self.css.split("/* ---------- capillary-wave ripple (decorative) ---------- */")[1].split("@keyframes")[0]
+
+    def reduced_motion_block(self):
+        blocks = [part.split("\n}")[0] for part in self.css.split("@media (prefers-reduced-motion: reduce) {")[1:]]
+        shield = [b for b in blocks if "navtoggle_box" in b]
+        self.assertEqual(len(shield), 1, "exactly one reduced-motion block targets the shield rings")
+        self.assertEqual(len(blocks), 2, "ripple block + the drawer's existing block")
+        return shield[0]
+
+    def test_keyframes_exist_and_animate_only_transform_and_opacity(self):
+        import re
+        props = set(re.findall(r"([a-z-]+)\s*:", self.keyframes()))
+        self.assertEqual(props - {"animation-timing-function"}, {"transform", "opacity"})
+
+    def test_rings_are_decorative_pseudo_elements_behind_the_button(self):
+        rule = self.ripple_rule()
+        for needle in ('::before', '::after', 'content: ""', "position: absolute", "z-index: -1",
+                       "pointer-events: none", "border-radius: 50%", "animation: cs-ripple", "infinite",
+                       "width: 44px; height: 44px"):
+            self.assertIn(needle, rule, needle)
+        self.assertIn("animation-delay: -1.8s", rule)                 # second ring half a cycle behind
+
+    def test_ripple_is_subtle(self):
+        import re
+        scales = [float(x) for x in re.findall(r"scale\(([\d.]+)\)", self.keyframes())]
+        opacities = [float(x) for x in re.findall(r"opacity:\s*([\d.]+)", self.keyframes())]
+        self.assertEqual((min(scales), max(scales)), (1.0, 1.45))
+        self.assertLessEqual(max(scales), 1.5)
+        self.assertLessEqual(max(opacities), 0.6)
+        self.assertEqual(opacities[0], 0)
+        self.assertEqual(opacities[-1], 0)
+        seconds = float(re.search(r"cs-ripple\s+([\d.]+)s", self.ripple_rule()).group(1))
+        self.assertGreaterEqual(seconds, 3.0, "slow cycle: no flashing")
+        for forbidden in ("box-shadow", "filter", "blur", "drop-shadow", "text-shadow"):
+            self.assertNotIn(forbidden, self.ripple_rule() + self.keyframes(), forbidden)
+
+    def test_ripple_fits_inside_viewport_and_reserved_top_padding(self):
+        import re
+        top = int(re.search(r"top:\s*(\d+)px; left:\s*(\d+)px; z-index: 1000000", self.css).group(1))
+        left = int(re.search(r"top:\s*(\d+)px; left:\s*(\d+)px; z-index: 1000000", self.css).group(2))
+        reach = 22 * 1.45
+        self.assertGreaterEqual(top + 22 - reach, 0)
+        self.assertGreaterEqual(left + 22 - reach, 0)
+        self.assertLessEqual(top + 22 + reach, 64 + 0.5)              # 4rem top padding reserved for the shield
+        self.assertIn("padding-top: 4rem", self.css)
+
+    def test_reduced_motion_disables_ripple_without_touching_the_button(self):
+        block = self.reduced_motion_block()
+        self.assertIn("::before", block)
+        self.assertIn("::after", block)
+        self.assertIn("animation: none", block)
+        for harmful in ("pointer-events", "navtoggle_btn", "button", "visibility"):
+            self.assertNotIn(harmful, block, harmful)
+
+    def test_ripple_only_targets_the_toggle_box(self):
+        for line in self.css.splitlines():
+            if "::before" in line or "::after" in line:
+                self.assertIn("navtoggle_box", line, line)
+        self.assertNotIn("navdrawer_panel\"]::", self.css)
+
+    def test_button_is_circular_and_ring_anchor_is_deterministic(self):
+        self.assertIn("border-radius: 50%; border: 1px solid rgba(34,211,238,.5)", self.css)
+        self.assertIn("z-index: 1000000; width: 44px; height: 44px;", self.css)
+
+    def test_landing_css_never_contains_the_ripple(self):
+        from components.landing_css import landing_css
+        for needle in ("cs-ripple", "navtoggle", "::before"):
+            self.assertNotIn(needle, landing_css(), needle)
+
+
 if __name__ == "__main__":
     unittest.main()
