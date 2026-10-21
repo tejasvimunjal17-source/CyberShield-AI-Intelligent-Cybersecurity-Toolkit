@@ -3,7 +3,7 @@
 This file is the documentation CyberGuide AI retrieves from. It describes only what is implemented. Planned items are labeled "planned". Each "##" section is one retrievable topic. A "Page:" line names the page key CyberGuide can offer a button for.
 
 ## Application overview
-CyberShield AI is an educational cybersecurity toolkit built with Python and Streamlit. It combines local security tools (URL heuristics, file hashing, QR generation and decoding) with two optional external services: VirusTotal for reputation lookups and OpenRouter for AI explanations and CyberGuide AI. The local tools work without any API key. The app does not guarantee safety and is not a replacement for professional security software.
+CyberShield AI is an educational cybersecurity toolkit built with Python and Streamlit. It combines local security tools (URL heuristics, file hashing, QR generation and decoding) with two optional external services: VirusTotal for reputation lookups and OpenRouter for AI explanations and CyberGuide AI. The local tools work without any API key. A new visitor first sees a landing page and enters the app with the Get Started button. The app does not guarantee safety and is not a replacement for professional security software.
 Page: dashboard
 
 ## Feature registry
@@ -12,11 +12,24 @@ Threat intelligence lookups (VirusTotal) are built into the URL Security Scanner
 Planned, not available yet: AI Security Assistant (full page), Phishing Awareness Lab, Security Reports. CyberGuide AI, the floating chat, is available today.
 
 ## Navigation map
-Use the sidebar to switch pages. The sidebar groups pages as Platform (Overview Dashboard), Analysis (URL Security Scanner, File Hash Analyzer), QR Tools (QR Code Generator, QR Code Security Analyzer), Learn (Security Learning Center) and System (Settings & API Configuration, About). CyberGuide AI is the chat button in the bottom-right corner of every page.
+When you open the app you first see the landing page. Press Get Started to enter the application, which opens on the Overview Dashboard. Inside the application, use the 🛡️ shield button in the top-left corner of every page to open the navigation sidebar, and press it again to close it (the Overview Dashboard also has Open buttons for each tool). The sidebar groups pages as Platform (Overview Dashboard), Analysis (URL Security Scanner, File Hash Analyzer), QR Tools (QR Code Generator, QR Code Security Analyzer), Learn (Security Learning Center) and System (Settings & API Configuration, About CyberShield AI). See the topic "Navigation sidebar and shield button" for details. CyberGuide AI is the chat button in the bottom-right corner of every page.
+Page: dashboard
+
+## Navigation sidebar and shield button
+Inside the application, a 🛡️ shield button sits fixed in the top-left corner of every page. Press it to open the navigation sidebar. Press the shield again to close it. The tooltip reads "Open navigation" or "Close navigation". A subtle ripple animation plays around the shield; it is switched off if your device is set to reduce motion, and it never changes how the button works.
+The sidebar lists all eight pages with icons: Overview Dashboard, URL Security Scanner, File Hash Analyzer, QR Code Generator, QR Code Security Analyzer, Security Learning Center, Settings & API Configuration, and About CyberShield AI. The page you are on is highlighted and its tooltip says "Current page".
+To go to a page, open the sidebar and press its name. The sidebar then closes by itself. Opening or closing the sidebar never changes the page you are on, and your chat history and tool results are kept. Choosing the page you are already on is harmless.
+The sidebar is a panel that overlays the left side of the page rather than pushing the content aside, and it starts closed. On narrow phone screens it covers most of the width, so close it with the shield button or by choosing a page. The sidebar and shield are not shown on the landing page. CyberGuide AI, the chat button in the bottom-right corner, is separate from the sidebar. Planned features such as the Phishing Awareness Lab are not listed because they are not available yet.
+Page: dashboard
+
+## Landing page and entering the app
+The landing page is the first screen for every new visit. It has a brand bar, a hero section, six feature cards (URL Security Scanner, File Hash Analyzer, QR Code Generator, QR Code Security Analyzer, CyberGuide AI and Security Learning Center), a How It Works section, an About section with limitations, and a footer. Features and About in the top bar scroll to those sections.
+Get Started (in the hero section, or in the final section at the bottom) opens the application on the Overview Dashboard. A feature card's button opens that tool directly; the CyberGuide AI card enters the app with the chat open. The shield navigation button and the CyberGuide AI chat button are part of the application and are not shown on the landing page, so if you cannot see them, press Get Started.
+Your place is kept only for the current browser session. Refreshing or reopening the page starts a new session and shows the landing page again; press Get Started to re-enter. There is no separate link back to the landing page from inside the app.
 Page: dashboard
 
 ## How to generate a QR code
-Open QR Code Generator from the sidebar.
+Open QR Code Generator from the shield navigation sidebar.
 1. Choose the content type: URL, Text, Wi-Fi or Email.
 2. Fill in the fields for that type. URLs must start with http:// or https://.
 3. Pick a color preset or choose Custom to set foreground and background colors.
@@ -128,6 +141,8 @@ These are planned and not implemented: AI Security Assistant full page, Phishing
 Page: dashboard
 
 ## Frequently asked questions
+Why don't I see the shield button or CyberGuide AI? You are on the landing page. Press Get Started to enter the app, where both appear. After a refresh you return to the landing page.
+Where did the ☰ Menu go? It was replaced by the 🛡️ shield button, which opens the navigation sidebar.
 Can CyberGuide AI scan a URL or run a tool for me? No. It explains how to use the tools and answers from documentation. Scans happen only when you press the buttons on the tool pages.
 Does the app open the links I analyze? No, never.
 Is a URL with no findings safe? Not necessarily. No heuristic signals is not a safety guarantee.
