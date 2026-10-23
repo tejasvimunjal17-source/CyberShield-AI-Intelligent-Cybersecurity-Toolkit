@@ -70,6 +70,8 @@ def _hero() -> None:
             chips = "".join(f"<span>{escape(c)}</span>" for c in copy.HERO_CHIPS)
             st.markdown(
                 '<div class="cs-l-shield"><div class="cs-l-ring r1"></div><div class="cs-l-ring r2"></div>'
+                '<div class="cs-l-wave w1" aria-hidden="true"></div><div class="cs-l-wave w2" aria-hidden="true"></div>'
+                '<div class="cs-l-wave w3" aria-hidden="true"></div><div class="cs-l-glint" aria-hidden="true"></div>'
                 '<div class="cs-l-core">🛡️</div></div>'
                 f'<div class="cs-l-chips">{chips}</div>',
                 unsafe_allow_html=True,
