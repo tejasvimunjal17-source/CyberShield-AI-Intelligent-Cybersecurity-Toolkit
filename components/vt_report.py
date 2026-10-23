@@ -28,6 +28,19 @@ def run_lookup(kind: str, value: str) -> vt.VTReport | None:
         return None
 
 
+def safe_call(fn, *args, **kwargs):
+    """Run a VirusTotal client call. Returns (result, error_message); exactly one is None/empty.
+
+    Used by the URL scanner so a failure can be remembered and re-shown on
+    rerun instead of vanishing. Messages come from VirusTotalError and never
+    contain the API key.
+    """
+    try:
+        return fn(*args, **kwargs), ""
+    except vt.VirusTotalError as exc:
+        return None, str(exc)
+
+
 def render_report(report: vt.VTReport) -> None:
     if not report.found:
         st.warning(

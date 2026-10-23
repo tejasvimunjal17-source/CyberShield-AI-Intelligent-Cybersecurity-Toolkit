@@ -6,6 +6,9 @@ from __future__ import annotations
 
 import streamlit as st
 
+from components.chrome import chrome_css
+from config import SHOW_DEFAULT_SIDEBAR
+
 COLORS = {
     "bg": "#0B1628", "panel": "#12233D", "border": "#24405F",
     "text": "#E6EEF8", "muted": "#9DB0C8", "cyan": "#22D3EE", "teal": "#14B8A6",
@@ -49,3 +52,12 @@ div[class*="st-key-cyberguide_fab"] {{
 
 def inject_css() -> None:
     st.markdown(_CSS, unsafe_allow_html=True)
+
+
+def inject_chrome_css() -> None:
+    """Hide Streamlit's toolbar (and, with the custom shield navigation, its
+    header) via components/chrome.py. Best effort: the selectors are Streamlit
+    internals, so on a version where they stop matching the controls simply
+    reappear. Called once per run from streamlit_app.main(), before the
+    landing/app split, so both views get it exactly once."""
+    st.markdown(chrome_css(hide_default_sidebar=not SHOW_DEFAULT_SIDEBAR), unsafe_allow_html=True)
