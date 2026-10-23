@@ -14,7 +14,7 @@ from components.cyberguide_chat import render_cyberguide
 from components.landing import render_landing
 from components.shield_nav import render_shield_nav
 from components.sidebar import current_page, render_sidebar
-from components.theme import inject_css
+from components.theme import inject_chrome_css, inject_css
 from config import APP_NAME, SHOW_DEFAULT_SIDEBAR, get_app_env
 from views import (about, dashboard, file_analyzer, learning_center,
                    qr_analyzer, qr_generator, settings, url_scanner)
@@ -40,6 +40,7 @@ assert set(PAGES) == set(reg.implemented_keys()), "app_registry and PAGES are ou
 
 def main() -> None:
     inject_css()
+    inject_chrome_css()
     if get_view(st.session_state) == VIEW_LANDING:
         # Landing state: no shield navigation, no sidebar, no CyberGuide widget.
         render_landing()
