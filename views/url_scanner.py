@@ -3,10 +3,12 @@ from __future__ import annotations
 import streamlit as st
 
 from backend import openrouter_client as orc
+from backend import url_report
+from backend import virustotal_client as vt
 from backend.ai_explainer import explain_url_findings
 from backend.security_utils import MAX_URL_LENGTH
 from backend.url_analyzer import analyze_url
-from components import vt_report
+from components import url_report_ui, vt_report
 from components.cards import badge, finding_card
 from components.header import page_header
 from config import get_openrouter_config
@@ -47,20 +49,80 @@ def render_analysis(analysis, key_prefix: str) -> None:
             st.markdown(f"- {r}")
 
 
+def _vt_state(stored: dict) -> str:
+    if stored.get("error"):
+        return url_report.VT_ERROR
+    report = stored.get("report")
+    if report is None:
+        return url_report.VT_ERROR
+    if not report.found:
+        return url_report.VT_NOT_FOUND
+    if report.pending:
+        return url_report.VT_PENDING
+    return url_report.VT_REPORT
+
+
+def _render_submission(analysis, key_prefix: str) -> None:
+    """Opt-in request for a NEW analysis. Nothing is sent until the user confirms."""
+    url = analysis.normalized
+    confirm_key = f"{key_prefix}_vt_confirm"
+    # Consent is per URL: never carry a ticked box over to a different URL.
+    if st.session_state.get(f"{confirm_key}_url") != url:
+        st.session_state[confirm_key] = False
+        st.session_state[f"{confirm_key}_url"] = url
+    sub_key, status_key = f"{key_prefix}_vt_sub", f"{key_prefix}_vt_status"
+
+    with st.expander("Request a new analysis (shares this URL with VirusTotal)"):
+        st.markdown("**Before you submit, understand what happens:**")
+        for note in url_report.submission_privacy_notes(url):
+            st.markdown(f"- {note}")
+        confirmed = st.checkbox(
+            "I understand and want to share this URL with VirusTotal.", key=confirm_key)
+        if st.button("Submit URL to VirusTotal", key=f"{key_prefix}_vt_submit_btn",
+                     disabled=not confirmed):
+            if confirmed:  # belt and braces: the client also refuses without confirmed=True
+                result, err = vt_report.safe_call(vt.submit_url, url, confirmed=True)
+                st.session_state[sub_key] = {"url": url, "analysis_id": result.analysis_id if result else "",
+                                             "error": err}
+                st.session_state.pop(status_key, None)
+
+        sub = st.session_state.get(sub_key)
+        if not sub or sub.get("url") != url:
+            return
+        if sub.get("error"):
+            st.error(sub["error"])
+            return
+        st.success("VirusTotal accepted the URL for analysis. This is not a verdict yet.")
+        st.caption(f"Analysis ID: {sub['analysis_id']}")
+        if st.button("Check analysis status", key=f"{key_prefix}_vt_status_btn"):
+            status, err = vt_report.safe_call(vt.get_analysis, sub["analysis_id"])
+            st.session_state[status_key] = {"url": url, "status": status, "error": err}
+        shown = st.session_state.get(status_key)
+        if shown and shown.get("url") == url:
+            if shown.get("error"):
+                st.error(shown["error"])
+            elif shown.get("status") is not None:
+                url_report_ui.render_analysis_status(shown["status"])
+
+
 def render_vt_section(analysis, key_prefix: str) -> None:
     st.subheader("VirusTotal reputation")
     if not vt_report.vt_available():
         vt_report.not_configured_notice()
         return
-    st.caption("Pressing the button sends this URL's text to VirusTotal (a third party). "
-               "The app only reads existing reports and does not submit the URL for scanning.")
-    state_key = f"{key_prefix}_vt"
-    if st.button("Look up on VirusTotal", key=f"{key_prefix}_vt_btn"):
-        report = vt_report.run_lookup("url", analysis.normalized)
-        st.session_state[state_key] = (analysis.normalized, report)
+    st.caption("External data from a third party, separate from the local heuristics above. "
+               "'Look up existing report' sends an encoded form of this URL to VirusTotal to read a report "
+               "that already exists. It does not request a new scan, and the app never visits the URL.")
+    state_key = f"{key_prefix}_vt_result"
+    if st.button("Look up existing report", key=f"{key_prefix}_vt_btn"):
+        report, err = vt_report.safe_call(vt.lookup_url, analysis.normalized)
+        st.session_state[state_key] = {"url": analysis.normalized, "report": report, "error": err}
     stored = st.session_state.get(state_key)
-    if stored and stored[0] == analysis.normalized and stored[1] is not None:
-        vt_report.render_report(stored[1])
+    if not stored or stored.get("url") != analysis.normalized:
+        return
+    url_report_ui.render_url_report(analysis, stored.get("report"), _vt_state(stored),
+                                    error=stored.get("error", ""))
+    _render_submission(analysis, key_prefix)
 
 
 def render() -> None:
@@ -77,6 +139,7 @@ def render() -> None:
         st.info("Paste a URL and press Analyze URL. The app never visits it.")
         return
 
+    st.subheader("Local heuristic analysis")
     render_analysis(analysis, "url")
     if not analysis.valid:
         return
