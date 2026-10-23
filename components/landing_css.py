@@ -58,6 +58,41 @@ _CSS = """
   justify-content: center; font-size: clamp(2.4rem, 8vw, 3.6rem);
   background: radial-gradient(circle, rgba(34,211,238,.28), rgba(34,211,238,.04) 70%);
   box-shadow: 0 0 40px rgba(34,211,238,.25); }
+/* ---------- hero shield: capillary waves (decorative, landing-only) ----------
+   Four aria-hidden elements inside .cs-l-shield. Each wave is a full-box circle drawn as a thin
+   gradient ring (a faint leading ripple, a bright crest, a fading trail) that grows from the
+   core's diameter (scale .46) out to the existing outer ring (scale 1) and fades, so nothing
+   leaves the illustration box and the page size never changes. Only transform and opacity
+   animate. The glint is a slow light sweep along the existing inner ring. */
+.cs-l-shield .cs-l-wave { position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  opacity: 0; transform: scale(.46); will-change: transform, opacity;
+  background: radial-gradient(closest-side, transparent 0, transparent 89.5%, rgba(34,211,238,.09) 90.8%,
+    transparent 92.2%, transparent 95%, rgba(34,211,238,.08) 96.2%, rgba(94,234,212,.62) 98.4%,
+    rgba(56,189,248,.14) 99.5%, transparent 100%);
+  --cs-l-peak: .5; animation: cs-l-wave-out 6.6s linear infinite; }
+.cs-l-shield .cs-l-wave.w2 { --cs-l-peak: .36; animation-duration: 7.2s; animation-delay: -2.4s; }
+.cs-l-shield .cs-l-wave.w3 { --cs-l-peak: .26; animation-duration: 6s; animation-delay: -4s; }
+/* Linear fade-in so a ring never pops into view, then ease-out like a ripple slowing as it spreads. */
+@keyframes cs-l-wave-out {
+  0%   { transform: scale(.46); opacity: 0; animation-timing-function: linear; }
+  12%  { transform: scale(.54); opacity: var(--cs-l-peak, .4); animation-timing-function: cubic-bezier(.22,.61,.36,1); }
+  100% { transform: scale(1); opacity: 0; }
+}
+.cs-l-shield .cs-l-glint { position: absolute; inset: 14%; border-radius: 50%; pointer-events: none; opacity: .55;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(186,230,253,.55) 28deg, transparent 62deg,
+    transparent 190deg, rgba(94,234,212,.45) 226deg, transparent 262deg, transparent 360deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 2px),
+    #000 calc(100% - .5px), transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 2px),
+    #000 calc(100% - .5px), transparent 100%);
+  will-change: transform; animation: cs-l-glint-spin 16s linear infinite; }
+@keyframes cs-l-glint-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .cs-l-shield .cs-l-wave, .cs-l-shield .cs-l-glint { animation: none; will-change: auto; }
+  .cs-l-shield .cs-l-wave { opacity: 0; }
+  .cs-l-shield .cs-l-wave.w1 { transform: scale(.74); opacity: .22; }   /* one still, faint ring */
+  .cs-l-shield .cs-l-glint { opacity: .3; transform: rotate(40deg); }
+}
 .cs-l-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
 .cs-l-chips span { font-size: .8rem; padding: 4px 10px; border-radius: 999px; color: #9DB0C8;
   border: 1px solid #24405F; background: rgba(18,35,61,.8); }
