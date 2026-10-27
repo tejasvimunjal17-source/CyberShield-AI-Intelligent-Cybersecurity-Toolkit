@@ -54,9 +54,19 @@ class KnowledgeSyncTests(unittest.TestCase):
             self.assertIn(name, _read("config.py"))
 
     def test_unsupported_formats_not_claimed(self):
-        # PDF export / frames are described only as not implemented.
+        # Updated with the QR generator upgrade: frames, PDF and vCard now exist, so the docs must name every
+        # supported format and must still describe the formats that are NOT offered as not offered.
         limits = next(s for s in self.sections if s.title == "QR code limitations")
-        self.assertIn("not implemented", limits.body)
+        body = limits.body
+        for supported in ("PNG", "JPG", "TIFF", "SVG", "PDF"):
+            self.assertIn(supported, body)
+        self.assertIn("EPS is not offered", body)
+        self.assertIn("background images are not offered", body)
+        for stale in ("PDF export, and contact-card (vCard) codes are not implemented", "SVG export does not support logos",
+                      "Frames, captions"):
+            self.assertNotIn(stale, body)
+        for unsupported in ("WebP export", "GIF export", "BMP export", "EPS export is supported"):
+            self.assertNotIn(unsupported, body)
 
 
 class RetrievalTests(unittest.TestCase):
