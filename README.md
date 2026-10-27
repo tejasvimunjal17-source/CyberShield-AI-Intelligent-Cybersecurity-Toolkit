@@ -2,7 +2,7 @@
 
 **Intelligent Security. Clear Insights. Safer Digital Experiences.**
 
-![Image Alt](https://github.com/tejasvimunjal17-source/Let-s-Magic/blob/main/file_0000000073448230a125e552f72baab0.png)
+![Image Alt](https://github.com/tejasvimunjal17-source/LearnMate/blob/main/file_00000000c31882118d0b6727becb9e1e.png)!
 
 An educational cybersecurity toolkit built with Python and Streamlit: inspect suspicious URLs, hash files, create and inspect QR codes, and learn the basics, with optional VirusTotal lookups and an AI guide (CyberGuide AI) powered by OpenRouter.
 
