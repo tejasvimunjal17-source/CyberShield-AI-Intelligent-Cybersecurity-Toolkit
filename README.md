@@ -8,6 +8,8 @@ An educational cybersecurity toolkit built with Python and Streamlit: inspect su
 
 **Contents:** [What works today](#what-works-today) · [QR Code Generator](#qr-code-generator) · [Security and privacy](#security-and-privacy) · [Configuration](#configuration) · [Run locally](#run-locally) · [Deploy](#deploy-to-github-and-streamlit-community-cloud) · [Project layout](#project-layout) · [Testing status](#testing-status-what-was-and-was-not-verified) · [Known limitations](#known-limitations)
 
+https://cybershield-ai-intelligent-cybersecurity-toolkit.streamlit.app/ 
+
 ## What works today
 
 A visitor first lands on a landing page (hero, features, how it works, about, footer). **Get Started** enters the app on the Overview Dashboard, where a 🛡️ shield button (top-left, with a subtle ripple animation that switches off for users who prefer reduced motion) opens the navigation sidebar and CyberGuide AI is available. The landing page itself shows neither. The sidebar lists all eight pages, highlights the current one, and closes when you choose a page; it starts closed. State is per browser session, so a refresh returns to the landing page.
