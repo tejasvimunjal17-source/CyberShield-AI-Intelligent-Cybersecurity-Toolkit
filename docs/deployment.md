@@ -9,6 +9,7 @@ Checklist:
 - [ ] Streamlit Cloud app created, main file `streamlit_app.py`.
 - [ ] Secrets pasted in Advanced settings → Secrets; `APP_ENV = "production"`.
 - [ ] After deploy, manually test: each page loads, generate + download a QR code, hash a small file, analyze a URL, open CyberGuide AI.
+- [ ] QR Code Generator on the live app, on a phone and a desktop: generate a code, download PNG and SVG (and PDF), and scan each downloaded file with a real phone. Try one decorative style, a logo, and a frame with a label, and check the read-back message matches what you see.
 
 Only after that checklist can the app be called deployed. If a key was ever committed, revoke it and create a new one; deleting the commit is not enough.
 
