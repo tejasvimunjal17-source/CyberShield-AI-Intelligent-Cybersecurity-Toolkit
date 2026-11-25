@@ -1,0 +1,457 @@
+"""Static content for the Cyber Hygiene page. Plain text only (the view escapes it).
+
+Every documentation link below was found through a web search of the vendor's own
+help site on DOCS_CHECKED. Links are never generated: add one only after opening it.
+Security settings differ by OS version, edition, hardware and manufacturer, so items
+carry a short `note` where availability is limited.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+DOCS_CHECKED = "November 25, 2026"
+
+# Official vendor help sites only. tests/test_cyber_hygiene.py enforces this.
+OFFICIAL_HOSTS = frozenset({"support.google.com", "support.microsoft.com", "support.apple.com"})
+
+
+@dataclass(frozen=True)
+class Doc:
+    label: str          # shown on the button; unique within a section
+    url: str
+
+
+@dataclass(frozen=True)
+class Item:
+    key: str
+    title: str
+    what: str           # What it is
+    why: str            # Why it matters
+    steps: tuple[str, ...]   # How to enable
+    tip: str            # Security recommendation
+    doc: Doc | None     # None only where no dedicated official page was verified
+    note: str = ""      # version / edition / hardware limits
+
+
+@dataclass(frozen=True)
+class OsSection:
+    key: str
+    title: str
+    icon: str
+    intro: str
+    notice: str         # compatibility notice shown above the cards
+    notice_tone: str    # "info" | "warning"
+    items: tuple[Item, ...]
+
+
+# --------------------------------------------------------------------- Android
+ANDROID = OsSection(
+    key="android", title="Android Security", icon="🤖",
+    intro="Android runs on many phone makers' hardware, so menus differ. Wording below follows stock Android and "
+          "Pixel; on Samsung and others, look for the closest match or search Settings.",
+    notice="Settings names and availability vary by manufacturer and Android version. Updates are provided only "
+           "for a limited period per device model, so check your phone maker's support page.",
+    notice_tone="info",
+    items=(
+        Item("os_update", "Keep Android updated",
+             "Security patches and Android version updates delivered through your device's Settings.",
+             "Updates fix vulnerabilities that attackers actively exploit. An unpatched phone can be compromised "
+             "by a malicious link or file.",
+             ("Open Settings, then About phone (or System) and look at Android version and Android security update.",
+              "Open System > Software update (the exact path varies) and install anything offered.",
+              "Connect to Wi-Fi and keep the battery charged first; large updates can take a while."),
+             "Restart after updating. Most devices also install updates automatically overnight.",
+             Doc("Google: Check & update your Android version", "https://support.google.com/android/answer/7680439"),
+             "Older devices cannot always run newer Android versions. If your model no longer gets security "
+             "updates, plan to replace it."),
+        Item("app_update", "Update apps through Google Play",
+             "Apps are updated from the Play Store, either automatically or by hand.",
+             "App updates close bugs that malicious content can abuse, and old apps are a common weak spot.",
+             ("Open the Play Store, tap your profile picture, then Manage apps & device.",
+              "Tap Updates available, then Update all.",
+              "Turn on auto-update in Play Store Settings > Network preferences > Auto-update apps."),
+             "Uninstall apps you no longer use. Fewer apps means a smaller attack surface.",
+             Doc("Google: Make your account more secure (update your apps)", "https://support.google.com/accounts/answer/46526"),
+             "Play Store menu labels change between versions."),
+        Item("permissions", "Review app permissions",
+             "Permissions control which apps can use your camera, microphone, location, contacts and more.",
+             "Over-permissioned apps can leak or misuse personal data, even if they are not outright malware.",
+             ("Open Settings > Apps, choose an app, then tap Permissions.",
+              "Set anything not needed to Don't allow; for location prefer Allow only while using the app.",
+              "Review by type via the Permission manager or Privacy dashboard to see which apps can use the camera or microphone."),
+             "A flashlight or wallpaper app asking for contacts or SMS is a red flag. Deny it or uninstall it.",
+             Doc("Google: Change app permissions on your Android phone", "https://support.google.com/android/answer/9431959"),
+             "Some options work only on Android 11 and later."),
+        Item("accessibility", "Review accessibility permissions",
+             "Accessibility services let an app read the screen and act on your behalf. They exist to help people "
+             "who need assistive tools.",
+             "Malware often asks for this access because it can read what you see, including codes, and tap buttons "
+             "for you. It is one of the most powerful permissions on a phone.",
+             ("Open Settings > Accessibility (it may be under Installed apps or Downloaded apps).",
+              "Look through the list for any service you do not recognize or did not set up.",
+              "Turn off and uninstall anything unfamiliar. Keep only tools you rely on, such as a screen reader."),
+             "Treat any app that urgently pushes you to enable accessibility access as suspicious.",
+             Doc("Google: Android permissions guide (closest official page)", "https://support.google.com/android/answer/9431959"),
+             "Menu location differs by maker. Newer Android versions can add extra warnings for apps installed "
+             "outside Google Play. Google's permissions page is the closest general official guide."),
+        Item("play_protect", "Enable Google Play Protect",
+             "Built-in scanning that checks apps before install and periodically scans the apps on your device.",
+             "It can warn about, disable or remove harmful apps, including ones installed from other sources.",
+             ("Open the Play Store and tap your profile picture.",
+              "Tap Play Protect, then Settings (the gear icon).",
+              "Make sure Scan apps with Play Protect is on."),
+             "Do not dismiss a Play Protect warning just to finish an install.",
+             Doc("Google: Use Google Play Protect", "https://support.google.com/googleplay/answer/2812853"),
+             "Available on devices that include Google Play. It is helpful protection, not a guarantee."),
+        Item("screen_lock", "Use a strong screen lock",
+             "A PIN, password, pattern or biometric that must be entered to unlock the phone.",
+             "Without a lock, anyone who picks up your phone can read your messages, accounts and saved logins.",
+             ("Open Settings > Security (or Security & privacy > Device unlock).",
+              "Tap Screen lock and pick PIN or Password.",
+              "Add fingerprint or face unlock as a convenience on top of the PIN."),
+             "Use a PIN of at least six digits, or a password. Avoid birthdays, repeated digits and simple patterns.",
+             Doc("Google: Set screen lock on an Android device", "https://support.google.com/android/answer/9079129"),
+             "Fingerprint and face unlock depend on your hardware."),
+        Item("two_step", "Enable 2-Step Verification",
+             "A second proof of identity, such as a prompt or key, in addition to your Google Account password.",
+             "A stolen or reused password alone is then not enough to take over your account.",
+             ("Open your Google Account, then Security.",
+              "Under How you sign in to Google, choose 2-Step Verification and follow the steps.",
+              "Add a backup method, and store backup codes somewhere safe."),
+             "Prefer passkeys, Google prompts or a security key over text-message codes, which are weaker against "
+             "phone-number hacks. Never share a verification code with anyone.",
+             Doc("Google: Turn on 2-Step Verification", "https://support.google.com/accounts/answer/185839"),
+             "Accounts managed by a work or school administrator may be controlled by that administrator."),
+        Item("account_review", "Review Google Account security",
+             "A check of the devices, sign-ins, apps and passwords linked to your Google Account.",
+             "Spotting an unknown device or app early limits the damage from a stolen password.",
+             ("Open your Google Account > Security and run the Security Checkup.",
+              "Remove devices you do not recognize and third-party apps you no longer use.",
+              "Use Password Checkup to find weak, reused or exposed passwords and change them."),
+             "Repeat this review every few months and after any suspicious sign-in alert.",
+             Doc("Google: Make your account more secure", "https://support.google.com/accounts/answer/46526")),
+        Item("apk", "Avoid APKs from untrusted websites",
+             "An APK is an Android app file. Installing one from a website bypasses Google Play's review.",
+             "Fake banking, video and \"cracked\" apps spread through APK links and are a leading way malware reaches phones.",
+             ("Install apps from Google Play, or your device maker's official store.",
+              "Keep Install unknown apps switched off for browsers and messaging apps (Settings > Apps > Special app access).",
+              "If you must install from outside Play, use the developer's official site, let Play Protect scan it, then switch the permission off again."),
+             "Do not install an app because a message, ad or pop-up told you to.",
+             Doc("Google: Play Protect and apps from other sources", "https://support.google.com/googleplay/answer/2812853"),
+             "Setting names vary by manufacturer. Play Protect also checks apps installed from other sources."),
+        Item("public_wifi", "Avoid unknown public Wi-Fi networks",
+             "Open Wi-Fi in cafes, airports and hotels that anyone, including an attacker, can join or imitate.",
+             "Fake hotspots and snooping on unencrypted traffic can expose logins and data.",
+             ("Prefer mobile data for banking, shopping and account logins.",
+              "Turn off automatic connection to open networks and forget networks you no longer need.",
+              "Confirm the exact network name with staff, and use only HTTPS sites."),
+             "A reputable VPN can help, but it is not a license to log in to everything on a network you do not trust.",
+             None,
+             "No dedicated official Google page was verified for this tip, so no documentation link is shown."),
+        Item("find_hub", "Enable Find Hub (device finding)",
+             "Google's service for locating, locking or erasing a lost Android device. It was previously called Find My Device.",
+             "If your phone is lost or stolen, you can protect your data and try to recover the phone.",
+             ("Make sure the phone is signed in to a Google Account and has a screen lock.",
+              "Open Settings > Google > All services > Find Hub (or Settings > Security & privacy) and confirm the device can be located.",
+              "Test it at android.com/find or in the Find Hub app on another device."),
+             "Set it up before you lose the phone. Erasing remotely also removes your data, so use it as a last resort.",
+             Doc("Google: Be ready to find a lost Android device", "https://support.google.com/android/answer/3265955"),
+             "The device must be on, online and have location on. Some features need Android 14 or later."),
+        Item("malicious", "Identify malicious apps and suspicious links",
+             "Learning the warning signs of bad apps, fake messages and scam links.",
+             "Most phone compromises begin when a person is tricked into installing something or entering a login on a fake page.",
+             ("Warning signs of a bad app: unexpected pop-ups or ads, fast battery drain, apps you did not install, requests for accessibility access.",
+              "Warning signs of a bad link: urgency, an unexpected \"package\" or \"bank\" text, shortened links, a web address that does not match the company.",
+              "Do not tap. Paste the link into this app's URL Security Scanner, which checks it without opening it. If an app seems bad, uninstall it and run a Play Protect scan."),
+             "If you entered a password on a suspicious page, change it from a different device and turn on 2-Step Verification.",
+             Doc("Google: Make your account more secure (suspicious messages & apps)", "https://support.google.com/accounts/answer/46526"),
+             "Scanner results are guidance only. No heuristic signals does not prove a link is safe."),
+    ),
+)
+
+# --------------------------------------------------------------------- Windows
+WINDOWS = OsSection(
+    key="windows", title="Windows Security", icon="🪟",
+    intro="Windows 11 is the supported version for most people. Where a feature differs on Windows 10, or by "
+          "edition, it is called out.",
+    notice="Windows 10 reached end of support on October 14, 2025. Microsoft's consumer Extended Security Updates "
+           "(ESU) program was scheduled to end on October 13, 2026. A Windows 10 PC without a current update "
+           "program no longer receives security fixes. Antivirus and the settings below do not make an "
+           "unsupported version of Windows secure, because they cannot patch operating-system flaws. Move to "
+           "Windows 11 if your PC supports it, or replace the device.",
+    notice_tone="warning",
+    items=(
+        Item("updates", "Keep Windows updated (and automatic)",
+             "Windows Update delivers security fixes and feature updates, and installs them automatically by default.",
+             "Most successful attacks use flaws that already have a fix. Staying patched closes them.",
+             ("Windows 11: Settings > Windows Update > Check for updates.",
+              "Windows 10: Settings > Update & Security > Windows Update > Check for updates.",
+              "Restart when asked. Use Active hours to avoid restarts while you work, and do not pause updates for long."),
+             "Treat \"I will update later\" as a risk, especially on laptops that are rarely restarted.",
+             Doc("Microsoft: Windows Update FAQ", "https://support.microsoft.com/en-us/windows/windows-update-faq-8a903416-6f45-0718-f5c7-375e92dddeb2"),
+             "Windows 10 no longer receives free security updates (see the notice above)."),
+        Item("defender", "Turn on Microsoft Defender Antivirus",
+             "Windows' built-in antivirus, managed in the Windows Security app.",
+             "It scans files and downloads in real time and can block known malware.",
+             ("Open Start and search for Windows Security.",
+              "Choose Virus & threat protection > Manage settings.",
+              "Make sure Real-time protection is on, then run a Quick scan occasionally."),
+             "Do not turn real-time protection off to \"make an installer work\". That is a common trick.",
+             Doc("Microsoft: Stay protected with the Windows Security app", "https://support.microsoft.com/en-us/help/17464"),
+             "If you install a different antivirus program, Defender may switch to a passive role. Run one main antivirus."),
+        Item("firewall", "Enable Windows Firewall",
+             "Windows Defender Firewall filters network connections to and from your PC.",
+             "It helps block unsolicited inbound connections, especially on public networks.",
+             ("Open Windows Security > Firewall & network protection.",
+              "Check that Domain, Private and Public networks all show the firewall as on.",
+              "If one is off, select it and turn on Microsoft Defender Firewall."),
+             "Leave it on. Add a rule for a specific app rather than switching the firewall off.",
+             Doc("Microsoft: Windows Security app (Firewall & network protection)", "https://support.microsoft.com/en-us/help/17464"),
+             "A third-party security suite may manage the firewall instead."),
+        Item("hello", "Use Windows Hello where supported",
+             "Sign in with a PIN, face or fingerprint instead of a password.",
+             "A PIN is tied to one device, so a stolen password cannot be used to sign in from elsewhere.",
+             ("Open Settings > Accounts > Sign-in options.",
+              "Choose Facial recognition, Fingerprint recognition or PIN and follow the prompts.",
+              "Set a PIN first; it is required before face or fingerprint."),
+             "Pick a PIN that is not a date or a simple sequence.",
+             Doc("Microsoft: Learn about Windows Hello and set it up", "https://support.microsoft.com/en-us/help/4028017"),
+             "Face sign-in needs a compatible camera and fingerprint sign-in needs a reader. Not every PC has them."),
+        Item("encryption", "Enable BitLocker or Device Encryption",
+             "Disk encryption that makes the data on your drive unreadable if the PC is lost or stolen.",
+             "Without it, someone can read your files by removing the drive.",
+             ("Windows 11: Settings > Privacy & security > Device encryption. Windows 10: Settings > Update & Security > Device encryption.",
+              "If it is off, turn it on. Where offered, BitLocker drive encryption can be managed from the same area.",
+              "Make sure your recovery key is saved to your Microsoft account or a safe place."),
+             "Store the recovery key somewhere other than the encrypted PC.",
+             Doc("Microsoft: Device encryption in Windows", "https://support.microsoft.com/en-us/help/4502379"),
+             "BitLocker is not available on Windows Home. Device encryption needs supported hardware (such as a TPM) "
+             "and is typically turned on automatically with a Microsoft account sign-in."),
+        Item("trusted_software", "Avoid cracked software; use trusted sources",
+             "Install apps only from the Microsoft Store or the publisher's official site.",
+             "Cracked software, keygens and \"free\" premium tools are a leading way to deliver malware and ransomware.",
+             ("Get software from the Microsoft Store or the vendor's official website, typed in by hand.",
+              "Compare the SHA-256 hash of a download with the one the publisher posts, using this app's File Hash Analyzer.",
+              "Where available on Windows 11, keep reputation-based protection such as Smart App Control enabled."),
+             "If a download requires you to disable your antivirus, do not run it.",
+             Doc("Microsoft: Windows Security app (including Smart App Control)", "https://support.microsoft.com/en-us/help/17464"),
+             "Smart App Control is a Windows 11 feature and its availability depends on how the PC was set up."),
+        Item("standard_account", "Use a standard account for daily work",
+             "A standard account cannot change system settings or install most software without an administrator password.",
+             "If malware runs under a standard account, it can do less damage.",
+             ("Open Settings > Accounts > Other users (or Family & other users).",
+              "Create a separate administrator account first, then change your everyday account to Standard user.",
+              "Sign in to the administrator account only when you need to install or change something."),
+             "Give the administrator account a strong, unique password.",
+             Doc("Microsoft: Create a local user or administrator account", "https://support.microsoft.com/help/4026923"),
+             "Do this in the right order so you are not locked out of administrator rights."),
+        Item("phishing", "Recognize phishing and malicious attachments",
+             "Fake emails, texts and sites that imitate trusted organizations to steal logins or deliver malware.",
+             "A single click or opened attachment can hand an attacker your account or device.",
+             ("Check the sender's real address and hover over links to see where they lead.",
+              "Be careful with unexpected attachments, especially Office files asking you to enable macros or content.",
+              "Paste a suspicious link into this app's URL Security Scanner rather than opening it, and report phishing in your mail app."),
+             "Urgency, threats and requests for codes or passwords are warning signs. Go to the website yourself.",
+             Doc("Microsoft: Protect yourself from phishing", "https://support.microsoft.com/en-us/windows/protect-yourself-from-phishing-0c7ea947-ba98-3bd9-7184-430e1f860a44")),
+        Item("backups", "Maintain backups",
+             "Copies of your files stored somewhere other than the PC, such as OneDrive or an external drive.",
+             "Backups are your recovery plan for ransomware, hardware failure, theft and mistakes.",
+             ("Open the Windows Backup app (or Settings > Accounts > Windows backup) and choose folders to back up to OneDrive.",
+              "Optionally back up to an external drive using File History.",
+              "Test restoring a file occasionally to be sure the backup works."),
+             "Keep at least one backup disconnected, so ransomware cannot reach it.",
+             Doc("Microsoft: Back up and restore with Windows Backup", "https://support.microsoft.com/en-us/windows/back-up-and-restore-with-windows-backup-87a81f8a-78fa-456e-b521-ac0560e32338"),
+             "Windows Backup uses a personal Microsoft account and OneDrive storage, which has a free limit."),
+    ),
+)
+
+# ------------------------------------------------------------------------- iOS
+IOS = OsSection(
+    key="ios", title="iOS Security", icon="📱",
+    intro="Apple controls both the hardware and software, so steps are consistent. Menu names change a little "
+          "between iOS releases.",
+    notice="Not every iPhone supports every feature or the newest iOS. Settings paths below follow recent iOS "
+           "versions; older versions may differ. Apple's account is now called Apple Account (formerly Apple ID).",
+    notice_tone="info",
+    items=(
+        Item("update", "Keep iOS updated (and automatic)",
+             "iOS software updates and Apple's automatic update options.",
+             "Updates fix security flaws, and some are already being exploited when they ship.",
+             ("Open Settings > General > Software Update.",
+              "Tap Automatic Updates and turn on the download and install options, including Security Responses & System Files.",
+              "Tap Update Now or Update Tonight when an update is available."),
+             "Install updates promptly and leave the phone charging on Wi-Fi overnight.",
+             Doc("Apple: Update your iPhone or iPad", "https://support.apple.com/118575"),
+             "Older iPhones eventually stop receiving the newest iOS."),
+        Item("passcode", "Use Face ID or Touch ID and a strong passcode",
+             "Biometric unlock backed by a device passcode.",
+             "The passcode protects your data and also guards sensitive settings. A weak one is the easiest way in for a thief.",
+             ("Open Settings > Face ID & Passcode (or Touch ID & Passcode).",
+              "Choose Turn Passcode On, then Passcode Options to pick a longer numeric or custom alphanumeric code.",
+              "Set up Face ID or Touch ID after the passcode."),
+             "Use a passcode that is not a date, repeated digits or the one you share with others.",
+             Doc("Apple: Set a passcode on iPhone", "https://support.apple.com/guide/iphone/iph14a867ae/ios"),
+             "Face ID or Touch ID depends on the iPhone model. Some models have only one of them."),
+        Item("two_factor", "Enable two-factor authentication for your Apple Account",
+             "A verification code or key required to sign in to your Apple Account on a new device or the web.",
+             "Your Apple Account holds your backups, photos, passwords and Find My access.",
+             ("Open Settings > [your name] > Sign-In & Security.",
+              "If Two-Factor Authentication is not on, turn it on and add a trusted phone number.",
+              "Never share a verification code. Apple does not ask for it."),
+             "Keep your trusted phone number current, and consider a security key for stronger protection.",
+             Doc("Apple: Two-factor authentication for Apple Account", "https://support.apple.com/102660"),
+             "Most accounts already use it. Once on for a while, it generally cannot be turned off."),
+        Item("permissions", "Review app permissions",
+             "Controls for which apps can access location, photos, camera, microphone, contacts and more.",
+             "Apps often keep access they no longer need.",
+             ("Open Settings > Privacy & Security and review each category such as Location Services, Photos, Camera, Microphone.",
+              "Set location to While Using or Never for apps that do not need it.",
+              "Optionally turn on App Privacy Report to see which apps used which permissions."),
+             "Revisit this list after installing a new app or when an app asks for something unexpected.",
+             Doc("Apple: Control access to information in apps", "https://support.apple.com/guide/iphone/control-access-to-information-in-apps-iph251e92810/ios"),
+             "App Privacy Report requires a recent iOS version."),
+        Item("find_my", "Enable Find My",
+             "Locates, locks and can erase a lost iPhone, and ties it to your Apple Account.",
+             "If the phone is lost or stolen, Find My lets you act quickly and helps stop others from using it.",
+             ("Open Settings > [your name] > Find My > Find My iPhone and turn it on.",
+              "Also turn on Find My network and Send Last Location.",
+              "If the phone is lost, sign in at iCloud.com or use another Apple device to mark it as lost."),
+             "Turn it on before the phone is lost. It cannot be set up remotely.",
+             Doc("Apple: Locate a device in Find My", "https://support.apple.com/guide/icloud/locate-a-device-mmfc0f2442/icloud"),
+             "The phone must be signed in to your Apple Account."),
+        Item("profiles", "Avoid suspicious configuration profiles",
+             "Profiles that apply settings for work or school. They can also change network and security behavior.",
+             "A malicious profile can route your traffic or weaken protections. Normal personal use rarely needs one.",
+             ("Open Settings > General > VPN & Device Management (earlier versions: Profiles & Device Management).",
+              "If you see no profiles, none are installed. If you see one you do not recognize, review who it belongs to.",
+              "Tap an unknown profile and choose Remove Profile, then restart."),
+             "Never install a profile because a website or message told you to. Check with your school or employer first.",
+             Doc("Apple Personal Safety: Review and delete configuration profiles", "https://support.apple.com/guide/personal-safety/ips327569a75/web"),
+             "If the device belongs to your employer or school, ask the administrator before removing a profile."),
+        Item("safari_links", "Safari privacy, unknown links and trusted app sources",
+             "Safari's privacy protections, plus habits for links, attachments and where you install apps from.",
+             "Phishing and fake apps are the main ways iPhone owners are tricked.",
+             ("Open Settings > Apps > Safari (older iOS: Settings > Safari) and keep Prevent Cross-Site Tracking and Fraudulent Website Warning on.",
+              "Do not tap links or open attachments in unexpected messages. Paste the link into this app's URL Security Scanner instead.",
+              "Install apps from the App Store. In some regions other marketplaces exist; treat those with extra caution."),
+             "Apple will not ask for your password or verification code by message or call.",
+             Doc("Apple: Recognize and avoid phishing messages and scams", "https://support.apple.com/102568"),
+             "The Safari settings path moved in newer iOS versions."),
+        Item("devices", "Review connected devices and account sessions",
+             "The list of devices that are signed in to your Apple Account.",
+             "An unfamiliar device in the list can mean someone else has your account.",
+             ("Open Settings, tap your name, then scroll to the list of devices.",
+              "Tap a device you do not recognize and choose Remove from Account.",
+              "If something looks wrong, change your Apple Account password and review Sign-In & Security."),
+             "Remove old phones, laptops and tablets you no longer use.",
+             Doc("Apple: Two-factor authentication for Apple Account (trusted devices)", "https://support.apple.com/102660")),
+    ),
+)
+
+# ----------------------------------------------------------------------- macOS
+MACOS = OsSection(
+    key="macos", title="macOS Security", icon="💻",
+    intro="macOS includes strong built-in protections. Your job is mainly to keep them on, update promptly and be careful "
+          "about what you install.",
+    notice="macOS 13 and later use System Settings; earlier versions use System Preferences and word things "
+           "differently. Some features depend on your Mac's chip and macOS version.",
+    notice_tone="info",
+    items=(
+        Item("update", "Keep macOS updated",
+             "System and security updates delivered through Software Update.",
+             "Updates fix vulnerabilities, and attackers target Macs that are behind.",
+             ("Open Apple menu > System Settings > General > Software Update.",
+              "Turn on automatic updates, including installing macOS updates and security responses and system files.",
+              "Restart when prompted."),
+             "Update apps from the App Store or the developer too.",
+             Doc("Apple Personal Safety: Update your Apple software", "https://support.apple.com/guide/personal-safety/ips4930e3486/web"),
+             "Older Macs may stop receiving the newest macOS. Check Apple's compatibility information."),
+        Item("filevault", "Enable FileVault",
+             "Full-disk encryption protected by your login password.",
+             "If the Mac is lost or stolen, your files cannot be read without your password.",
+             ("Open System Settings > Privacy & Security > FileVault.",
+              "Turn on FileVault and choose how you will unlock the disk if you forget your password: iCloud account or a recovery key.",
+              "Write down any recovery key and store it away from the Mac."),
+             "Do not lose the recovery key. If you forget both your password and recovery key, the data may be gone for good.",
+             Doc("Apple: Protect data on your Mac with FileVault", "https://support.apple.com/guide/mac-help/mh11785/mac"),
+             "Macs with Apple silicon or a T2 chip encrypt data automatically. FileVault adds the login-password requirement."),
+        Item("firewall", "Configure the firewall",
+             "A built-in firewall that blocks unwanted incoming connections.",
+             "On networks you do not control, it limits which services other devices can reach.",
+             ("Open System Settings > Network > Firewall (the location varies by macOS version).",
+              "Turn Firewall on and open Options to review the settings.",
+              "Consider stealth mode and blocking all incoming connections on untrusted networks."),
+             "Blocking all incoming connections can break sharing and some apps. Turn it on when needed.",
+             Doc("Apple: Block connections to your Mac with a firewall", "https://support.apple.com/guide/mac-help/mh11783/mac"),
+             "The firewall may be off by default, depending on your Mac."),
+        Item("gatekeeper", "Use Gatekeeper protections",
+             "Checks that downloaded software comes from an identified developer and has been notarized by Apple.",
+             "It reduces the chance you run tampered or unknown software.",
+             ("Open System Settings > Privacy & Security and find the setting for allowed apps.",
+              "Choose App Store, or App Store and identified developers.",
+              "Use Open Anyway only if you are certain the app is trustworthy."),
+             "The App Store is the safest place to get Mac apps. If macOS says an app will damage your Mac, move it to the Trash.",
+             Doc("Apple: Safely open apps on your Mac", "https://support.apple.com/102445"),
+             "Settings may be unavailable on a Mac managed by an administrator."),
+        Item("xprotect", "XProtect malware protection",
+             "Apple's built-in antivirus technology that blocks and removes known malware.",
+             "It protects against known threats and Apple updates its rules without a full macOS update.",
+             ("There is no switch to turn on. XProtect runs automatically.",
+              "Keep automatic security updates on in System Settings > General > Software Update.",
+              "If macOS says a file is malware, follow the prompt to move it to the Trash."),
+             "XProtect cannot stop what you approve yourself. Do not override warnings.",
+             Doc("Apple Platform Security: Protecting against malware", "https://support.apple.com/guide/security/sec469d47bd8/web"),
+             "Detection depends on what Apple already knows about. It is not a complete defense."),
+        Item("permissions_passwords", "Review permissions, strong passwords and a standard account",
+             "Privacy permissions for apps, your login password and the type of account you use daily.",
+             "Apps with broad access can read files, record the screen and control the Mac. A weak password undermines FileVault.",
+             ("Open System Settings > Privacy & Security and review Full Disk Access, Accessibility, Screen Recording and similar lists.",
+              "Use a long, unique login password or passkeys, and require a password after sleep.",
+              "Use a standard account for daily work and an administrator account only to install or change settings."),
+             "Remove access for apps you no longer use or do not recognize.",
+             Doc("Apple: Set up your Mac to be secure", "https://support.apple.com/guide/mac-help/flvlt003"),
+             "Panel names vary slightly by macOS version."),
+        Item("apple_account", "Enable Apple Account two-factor authentication",
+             "A verification step required to sign in to your Apple Account on a new device or the web.",
+             "It protects your iCloud data, backups and Find My.",
+             ("Open System Settings > [your name] > Sign-In & Security.",
+              "Turn on Two-Factor Authentication if it is not already on.",
+              "Keep your trusted phone number current."),
+             "Never share verification codes.",
+             Doc("Apple: Two-factor authentication for Apple Account (Mac steps)", "https://support.apple.com/102660"),
+             "Most accounts already use it."),
+        Item("profiles", "Avoid suspicious configuration profiles",
+             "Profiles that apply settings and can change security behavior on a Mac.",
+             "A malicious profile can weaken protections or route traffic.",
+             ("Open System Settings > General > Device Management (on macOS 12 or earlier: System Preferences > Profiles).",
+              "If there is no such pane, no profiles are installed.",
+              "Select an unknown profile and remove it, then restart."),
+             "Never install a profile from a pop-up or email you did not expect.",
+             Doc("Apple Personal Safety: Review and delete configuration profiles", "https://support.apple.com/guide/personal-safety/ips327569a75/web"),
+             "A Mac from an employer or school may be managed. Ask the administrator before removing profiles."),
+        Item("time_machine", "Maintain Time Machine backups",
+             "Built-in backup to an external drive that can restore files and earlier versions.",
+             "Backups let you recover from ransomware, hardware failure and mistakes.",
+             ("Connect an external drive.",
+              "Open System Settings > General > Time Machine > Add Backup Disk.",
+              "Turn on Encrypt Backup when offered, and keep the password somewhere safe."),
+             "Unplug the backup drive when you are not backing up, so it is not exposed to an attack.",
+             Doc("Apple: Back up your Mac with Time Machine", "https://support.apple.com/104984"),
+             "Time Machine does not back up the system files and apps installed with macOS."),
+        Item("phishing_downloads", "Recognize phishing and malicious downloads",
+             "Fake emails, pop-ups and downloads that imitate trusted brands or Apple support.",
+             "Most Mac infections happen because a person was tricked into running something.",
+             ("Download software only from the App Store or the developer's own site.",
+              "Do not follow links or open attachments in unexpected messages. Paste the link into this app's URL Security Scanner.",
+              "Ignore pop-ups that claim your Mac has a virus. Apple does not ask for passwords or verification codes."),
+             "If you opened something and entered a password, change it from another device.",
+             Doc("Apple: Recognize and avoid phishing messages and scams", "https://support.apple.com/102568")),
+    ),
+)
+
+SECTIONS: tuple[OsSection, ...] = (ANDROID, WINDOWS, IOS, MACOS)
+
+GENERAL_NOTE = ("General educational guidance, not a guarantee of safety. Settings vary by operating-system version, "
+                "edition, hardware and manufacturer, so a feature described here may not exist on your device. "
+                "Follow the official documentation link for your exact version.")
