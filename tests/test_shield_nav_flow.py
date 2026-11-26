@@ -82,7 +82,7 @@ class ShieldNavFlowTests(unittest.TestCase):
             self.assertEqual(self.fake.session["view"], "app")
 
     # --- drawer content ----------------------------------------------------------------
-    def test_open_drawer_lists_all_eight_pages_with_labels(self):
+    def test_open_drawer_lists_all_eleven_pages_with_labels(self):
         self.toggle()
         for key in reg.implemented_keys():
             k = item_key(key, "dashboard")
@@ -90,7 +90,7 @@ class ShieldNavFlowTests(unittest.TestCase):
             module = reg.get_module(key)
             self.assertIn(module.title, self.fake.button_labels[k])
             self.assertIn(module.icon, self.fake.button_labels[k])
-        self.assertEqual(len([k for k in self.fake.button_keys if k and k.startswith("cs_navitem_")]), 8)
+        self.assertEqual(len([k for k in self.fake.button_keys if k and k.startswith("cs_navitem_")]), 11)
         for m in reg.planned():
             self.assertNotIn(m.title, " ".join(self.fake.button_labels.values()))
 
