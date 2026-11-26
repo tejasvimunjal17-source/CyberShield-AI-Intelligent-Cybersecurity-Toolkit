@@ -16,8 +16,8 @@ from components.shield_nav import render_shield_nav
 from components.sidebar import current_page, render_sidebar
 from components.theme import inject_chrome_css, inject_css
 from config import APP_NAME, SHOW_DEFAULT_SIDEBAR, get_app_env
-from views import (about, dashboard, file_analyzer, learning_center,
-                   qr_analyzer, qr_generator, settings, url_scanner)
+from views import (about, courses, cyber_hygiene, dashboard, file_analyzer, learning_center,
+                   qr_analyzer, qr_generator, roadmap, settings, url_scanner)
 
 logger = get_logger(__name__)
 
@@ -30,7 +30,10 @@ PAGES = {
     "file_analyzer": file_analyzer.render,
     "qr_generator": qr_generator.render,
     "qr_analyzer": qr_analyzer.render,
+    "cyber_hygiene": cyber_hygiene.render,
     "learning_center": learning_center.render,
+    "courses": courses.render,
+    "roadmap": roadmap.render,
     "settings": settings.render,
     "about": about.render,
 }
