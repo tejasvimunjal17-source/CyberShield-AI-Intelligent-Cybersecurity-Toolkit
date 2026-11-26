@@ -385,12 +385,12 @@ class KnowledgeTests(unittest.TestCase):
         self.assertIn("Cyber Hygiene", nav.body)
         text = _read("knowledge.md")
         self.assertIn("Protect (Cyber Hygiene)", text)
-        self.assertIn("lists all nine pages", text)
+        self.assertIn("lists all eleven pages", text)
 
     def test_readme_mentions_the_page(self):
         readme = _read("README.md")
         self.assertIn("Cyber Hygiene", readme)
-        self.assertIn("all nine pages", readme)
+        self.assertIn("all eleven pages", readme)
 
 
 if __name__ == "__main__":
