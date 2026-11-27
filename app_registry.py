@@ -45,6 +45,8 @@ MODULES: tuple[Module, ...] = (
            "A provider-based directory of cybersecurity courses, with search, filters and verification status."),
     Module("roadmap", "Roadmap", "🗺️", "Learn", "implemented",
            "A step-by-step beginner path through eight learning stages, linked to the Courses page and Learning Center."),
+    Module("internships", "Internships", "💼", "Learn", "implemented",
+           "Where to look for cybersecurity internships, with honest verification labels, filters and safety advice."),
     Module("about", "About CyberShield AI", "ℹ️", "System", "implemented",
            "Purpose, privacy, data sharing, and limitations."),
     # ---- planned: no page module exists yet ----
