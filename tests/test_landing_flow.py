@@ -74,7 +74,7 @@ class LandingFlowTests(unittest.TestCase):
         self.assertNotIn("landing_cta_top", self.fake.button_keys)
 
     def test_obsolete_menu_controls_are_gone_after_entering(self):
-        self.assertEqual(len(reg.implemented_keys()), 11)
+        self.assertEqual(len(reg.implemented_keys()), 12)
         self.enter()
         self.assertFalse([k for k in self.fake.button_keys if k and k.startswith("menu_")])
         self.assertNotIn("☰ Menu", self.fake.all_markdown())
