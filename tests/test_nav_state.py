@@ -4,10 +4,10 @@ import app_registry as reg
 from components import nav_state
 from components import shield_nav_css as css
 
-ELEVEN_TITLES_IN_ORDER = [
+TWELVE_TITLES_IN_ORDER = [
     "Overview Dashboard", "URL Security Scanner", "File Hash Analyzer", "QR Code Generator",
     "QR Code Security Analyzer", "Cyber Hygiene", "Security Learning Center", "Courses",
-    "Roadmap", "Settings & API Configuration", "About CyberShield AI",
+    "Roadmap", "Internships", "Settings & API Configuration", "About CyberShield AI",
 ]
 
 
@@ -69,8 +69,8 @@ class NavModelTests(unittest.TestCase):
     def flat(self):
         return [m for _, mods in nav_state.nav_groups() for m in mods]
 
-    def test_exactly_the_eleven_pages_in_the_required_order(self):
-        self.assertEqual([m.title for m in self.flat()], ELEVEN_TITLES_IN_ORDER)
+    def test_exactly_the_twelve_pages_in_the_required_order(self):
+        self.assertEqual([m.title for m in self.flat()], TWELVE_TITLES_IN_ORDER)
 
     def test_every_implemented_page_appears_once_and_no_planned_page(self):
         keys = [m.key for m in self.flat()]
