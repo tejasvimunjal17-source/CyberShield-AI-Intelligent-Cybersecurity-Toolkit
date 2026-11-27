@@ -339,12 +339,12 @@ class IntegrationTests(unittest.TestCase):
         m = reg.get_module("roadmap")
         self.assertEqual((m.key, m.title, m.icon, m.group, m.status), ("roadmap", "Roadmap", "🗺️", "Learn", "implemented"))
         self.assertIn("roadmap", reg.implemented_keys())
-        self.assertEqual(len(reg.implemented_keys()), 11)
+        self.assertEqual(len(reg.implemented_keys()), 12)
         groups = nav_state.nav_groups()
         names = [g for g, _ in groups]
         self.assertEqual(names.count("Learn"), 1)
         self.assertEqual(names, ["Platform", "Analysis", "QR Tools", "Protect", "Learn", "System"])
-        self.assertEqual([x.key for x in dict(groups)["Learn"]], ["learning_center", "courses", "roadmap"])
+        self.assertEqual([x.key for x in dict(groups)["Learn"]], ["learning_center", "courses", "roadmap", "internships"])
         self.assertEqual(nav_state.NAV_GROUP_ORDER, ("Platform", "Analysis", "QR Tools", "Protect", "Learn", "System"))
 
     def test_router_wiring_and_sync_assertion_are_intact(self):
@@ -464,18 +464,18 @@ class KnowledgeTests(unittest.TestCase):
 
     def test_documentation_counts_and_navigation_are_consistent(self):
         km = _read("knowledge.md")
-        self.assertIn("lists all eleven pages", km)
-        self.assertIn("Learn (Security Learning Center, Courses, Roadmap)", km)
+        self.assertIn("lists all twelve pages", km)
+        self.assertIn("Learn (Security Learning Center, Courses, Roadmap, Internships)", km)
         self.assertNotIn("lists all ten pages", km)
         nav = next(s for s in load_sections() if s.title == "Navigation sidebar and shield button")
         self.assertIn("Roadmap", nav.body)
         readme = _read("README.md")
-        self.assertIn("all eleven pages", readme)
+        self.assertIn("all twelve pages", readme)
         self.assertNotIn("all ten pages", readme)
         self.assertIn("| Roadmap |", readme)
         arch = _read("docs/architecture.md")
         self.assertIn("## Roadmap", arch)
-        self.assertIn("Security Learning Center, Courses, Roadmap, Settings & API Configuration", arch)
+        self.assertIn("Security Learning Center, Courses, Roadmap, Internships, Settings & API Configuration", arch)
         self.assertIn("Platform, Analysis, QR Tools, Protect, Learn, System", arch)
 
 
